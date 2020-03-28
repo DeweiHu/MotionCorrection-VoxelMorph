@@ -3,6 +3,6 @@ The motion correction -- VoxelMorph pipeline major serves for human OCT denoisin
 and the VoxelMorph is a learning based deformable registration.
 
 ## VoxelMorph files
-1. Voxel_train
-2. Voxer_test
-3. losses
+1. VoxelMorph_Train.py
+2. VoxerMorph_test.py
+3. losses.py
