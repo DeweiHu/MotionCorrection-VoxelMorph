@@ -6,3 +6,11 @@ and the VoxelMorph is a learning based deformable registration.
 1. VoxelMorph_Train.py
 2. VoxerMorph_test.py
 3. losses.py
+
+## Motion Correction files
+1. MotionCorrection.py
+2. FrameRegistration.py 
+3. VolumeMotionCorrection.py
+
+## Other file
+1. MyFunctions.py
