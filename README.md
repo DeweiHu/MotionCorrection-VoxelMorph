@@ -14,3 +14,4 @@ and the VoxelMorph is a learning based deformable registration.
 
 ## Other file
 1. MyFunctions.py
+2. RunBash.py
