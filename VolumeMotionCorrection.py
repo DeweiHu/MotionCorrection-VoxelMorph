@@ -41,9 +41,9 @@ testlist = []
 for file in os.listdir(volumeroot):
     if file.endswith('.tif'):
         volumelist.append(file)
-    if file.startswith('Retina1_ONH'):
+    if file.startswith('Retina1_ONH_SNR_96'):
         trainlist.append(file)
-    if file.startswith('Retina2_ONH'):
+    if file.startswith('Retina2_ONH_SNR_96'):
         testlist.append(file)
 
 volumelist.sort()
@@ -65,7 +65,7 @@ t1 = time.time()
 
 for vol in range(len(trainlist)):
     
-    volume = MyFunctions.ImageRescale(io.imread(volumeroot+volumelist[vol]),
+    volume = MyFunctions.ImageRescale(io.imread(volumeroot+trainlist[vol]),
                                       [0,255])
     data = PickFrame(volume)
     del volume
@@ -98,7 +98,7 @@ for vol in range(len(trainlist)):
         if i % 20 == 0 :
             print('{} slices have been completed'.format(i))
             
-    with open('E:\\VoxelMorph\\'+volumelist[vol][:-4]+'_a'+'.pickle','wb') as f:
+    with open('E:\\VoxelMorph\\'+trainlist[vol][:-4]+'_a'+'.pickle','wb') as f:
         pickle.dump(pair,f)
     del pair
     

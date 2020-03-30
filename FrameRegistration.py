@@ -34,9 +34,9 @@ Test_ONH = []
 for file in os.listdir(volumeroot):
     if file.endswith('.tif'):
         volumelist.append(file)
-    if file.startswith('Retina1_ONH'):
+    if file.startswith('Retina1_Fovea_SNR_96'):
         Train_ONH.append(file)
-    if file.startswith('Retina2_ONH'):
+    if file.startswith('Retina2_Fovea_SNR_96'):
         Test_ONH.append(file)        
 
 volumelist.sort()
@@ -44,19 +44,18 @@ Train_ONH.sort()
 Test_ONH.sort()
 
 #%% Frame registration
-temproot = 'E:\\Temp\\'
+temproot = 'E:\\Temp2\\'
 fixedImageFile = temproot+'fix_img.nii.gz'
 movingImageFile = temproot+'mov_img.nii.gz'
 outputImageFile = temproot+'opt.nii.gz'
 
-# x-y pair saved in a tuple
-pair = ()
-
 t1 = time.time()
 
 for vol in range(len(Train_ONH)):
+    # x-y pair saved in a tuple
+    pair = ()
     # Train on Retina1_ONH
-    ipt = io.imread(volumeroot+volumelist[vol])
+    ipt = io.imread(volumeroot+Train_ONH[vol])
     ipt = MyFunctions.ImageRescale(ipt,[0,255])
     dim = ipt.shape
     
@@ -84,7 +83,12 @@ for vol in range(len(Train_ONH)):
         
         if slc % 100 == 0 :
             print('Processing: [%d/%d]'%(slc,dim[0]))
-
+            
+    with open(volumeroot+Train_ONH[vol][:-4]+'FR'+'.pickle','wb') as f:
+        pickle.dump(pair,f)
+    
+    del pair
+    
 t2 = time.time()
 print('Time: {} min'.format((t2-t1)/60))
 
@@ -98,10 +102,6 @@ print('Time: {} min'.format((t2-t1)/60))
 #
 #MyFunctions.nii_saver(x_volume,temproot,'x_volume.nii.gz')
 #MyFunctions.nii_saver(y_volume,temproot,'y_volume.nii.gz')
-
-#%% Pickle save
-with open(volumeroot+volumelist[0][:-4]+'.pickle','wb') as f:
-    pickle.dump(pair,f)
 
             
             
