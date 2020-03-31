@@ -29,6 +29,10 @@ global radius, root, num_volume
 
 radius = 7
 
+volumeroot = 'E:\\VMC_R2_train\\'
+saveroot = 'E:\\register_result\\'
+volumelist = []
+
 #%%  Paired human data
 
 class MyDataset(Data.Dataset):
@@ -51,12 +55,7 @@ class MyDataset(Data.Dataset):
         (m_img,f_img) = self.pair[idx]
         x_tensor, y_tensor = self.ToTensor(m_img, f_img)
         return x_tensor, y_tensor        
-'''
-Set the batch size to be 2*radius+1 to include all neighbors of a slice
-'''
-test_loader = Data.DataLoader(dataset=MyDataset('E:\\VoxelMorph\\Retina2_Fovea_SNR_101.pickle'),
-                               batch_size=2*radius+1, shuffle=False)
-
+    
 #%%
 print('Initializing model...')    
 
@@ -236,39 +235,53 @@ enc_nf = [16,32,32,32]
 dec_nf = [32,32,32,32,8,8]
 model = cvpr2018_net(vol_size, enc_nf, dec_nf).to(device)
 
-#%%
+#%% load trained model
 modelroot = 'E:\\Model\\'
 name = 'VoxelMorph.pt'
 model.load_state_dict(torch.load(modelroot+name))
     
 #%% Test
-pack_warp = []
-pack_x = []
-pack_y = []
+for file in os.listdir(volumeroot):
+    if file.endswith('1.pickle'):
+        volumelist.append(file)
 
-for step, [m_img, f_img] in enumerate(test_loader):
-    model.eval()
-    
-    x = Variable(m_img).to(device)
-    y = Variable(f_img).to(device)
-    warp,_ = model(x,y)
+for item in range(len(volumelist)):    
+    filename = volumelist[item]
     '''
-    Each element in the list is a [15,1024,512] array
+    Set the batch size to be 2*radius+1 to include all neighbors of a slice
     '''
-    pack_warp.append(warp.detach().cpu().numpy())
-#    pack_y.append(y.detach().cpu().numpy())
-#    pack_x.append(x.detach().cpu().numpy())
+    test_loader = Data.DataLoader(dataset=MyDataset(volumeroot+filename),
+                               batch_size=2*radius+1, shuffle=False)
 
-#%%
+    pack_warp = []
+    #pack_x = []
+    #pack_y = []
+
+    t1 = time.time()
+    for step, [m_img, f_img] in enumerate(test_loader):
+        model.eval()
+        
+        x = Variable(m_img).to(device)
+        y = Variable(f_img).to(device)
+        warp,_ = model(x,y)
+        '''
+        Each element in the list is a [15,1024,512] array
+        '''
+        pack_warp.append(warp.detach().cpu().numpy())
+    #    pack_y.append(y.detach().cpu().numpy())
+    #    pack_x.append(x.detach().cpu().numpy())
+    t2 = time.time()
+    print('Item %d registered, time consumption: %.4f min'
+          %(item,(t2-t1)/60))
     
-root = 'E:\\register_result\\'
-with open(root+'pack_warp.pickle','wb') as f:
-    pickle.dump(pack_warp,f)
-#with open(root+'pack_x.pickle','wb') as f:
-#    pickle.dump(pack_x,f)
-#with open(root+'pack_y.pickle','wb') as f:
-#    pickle.dump(pack_y,f)
+    # save volume into a,b file
+    with open(saveroot+filename[:-7]+'_a.pickle','wb') as f:
+        pickle.dump(pack_warp[:int(len(pack_warp)/2)],f)
+    with open(saveroot+filename[:-7]+'_b.pickle','wb') as f:
+        pickle.dump(pack_warp[int(len(pack_warp)/2):],f)
     
+    del pack_warp
+
 #%% single slice
 #slc = 100
 #x = pack_x[slc]
