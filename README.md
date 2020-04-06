@@ -15,3 +15,4 @@ and the VoxelMorph is a learning based deformable registration.
 ## Other file
 1. MyFunctions.py
 2. RunBash.py
+3. VMC_mice.py (Do volume motion correction, prepare mice data to train VoxelMorph)
