@@ -7,17 +7,19 @@ Created on Wed Mar 18 07:51:29 2020
 
 import itk
 
-root = 'E:\\OCT_human\\'
-fixedImageFile = root+'fix_img.nii.gz'
-movingImageFile = root+'mov_img8.nii.gz'
-outputImageFile = root+'opt8.nii.gz'
+#root = 'E:\\OCT_human\\'
+#fixedImageFile = root+'fix_img.nii.gz'
+#movingImageFile = root+'mov_img8.nii.gz'
+#outputImageFile = root+'opt8.nii.gz'
 
-def MotionCorrect(fixedImageFile,movingImageFile,outputImageFile):
+def MotionCorrect(fixedImageFile,movingImageFile):
 
     PixelType = itk.ctype('float')
-
-    fixedImage = itk.imread(fixedImageFile, PixelType)
-    movingImage = itk.imread(movingImageFile, PixelType)
+    
+    fixedImage = itk.GetImageViewFromArray(fixedImageFile)
+    movingImage = itk.GetImageViewFromArray(movingImageFile)
+#    fixedImage = itk.imread(fixedImageFile, PixelType)
+#    movingImage = itk.imread(movingImageFile, PixelType)
 
     Dimension = fixedImage.GetImageDimension()
     FixedImageType = itk.Image[PixelType, Dimension]
@@ -58,14 +60,14 @@ def MotionCorrect(fixedImageFile,movingImageFile,outputImageFile):
     
     registration.Update()
     
-    transform = registration.GetTransform()
-    finalParameters = transform.GetParameters()
-    translationAlongX = finalParameters.GetElement(0)
-    translationAlongY = finalParameters.GetElement(1)
-    
-    numberOfIterations = optimizer.GetCurrentIteration()
-    
-    bestValue = optimizer.GetValue()
+#    transform = registration.GetTransform()
+#    finalParameters = transform.GetParameters()
+#    translationAlongX = finalParameters.GetElement(0)
+#    translationAlongY = finalParameters.GetElement(1)
+#    
+#    numberOfIterations = optimizer.GetCurrentIteration()
+#    
+#    bestValue = optimizer.GetValue()
     
 #    print("Result = ")
 #    print(" Translation X = " + str(translationAlongX))
@@ -89,6 +91,8 @@ def MotionCorrect(fixedImageFile,movingImageFile,outputImageFile):
     caster = itk.CastImageFilter[FixedImageType,
             OutputImageType].New(Input=resampler)
     
-    writer = itk.ImageFileWriter.New(Input=caster, FileName=outputImageFile)
-    writer.SetFileName(outputImageFile)
-    writer.Update()
+    outputImageFile = itk.GetArrayFromImage(caster)
+#    writer = itk.ImageFileWriter.New(Input=caster, FileName=outputImageFile)
+#    writer.SetFileName(outputImageFile)
+#    writer.Update()
+    return outputImageFile
